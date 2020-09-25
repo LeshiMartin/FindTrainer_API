@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FindTrainer.Persistence.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200914174710_initial")]
-    partial class initial
+    [Migration("20200920214426_First")]
+    partial class First
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -94,12 +94,12 @@ namespace FindTrainer.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
+                    b.Property<int>("trainerId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("trainerId");
 
                     b.ToTable("Certifications");
                 });
@@ -117,6 +117,23 @@ namespace FindTrainer.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Focuses");
+                });
+
+            modelBuilder.Entity("FindTrainer.Domain.Entities.NewSignup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SignupDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NewSignups");
                 });
 
             modelBuilder.Entity("FindTrainer.Domain.Entities.Photo", b =>
@@ -294,6 +311,23 @@ namespace FindTrainer.Persistence.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("FindTrainer.Domain.Entities.UniqueSignin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("SigninDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UniqueSignins");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -412,7 +446,7 @@ namespace FindTrainer.Persistence.Migrations
                 {
                     b.HasOne("FindTrainer.Domain.Entities.Security.ApplicationUser", null)
                         .WithMany("Certifications")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("trainerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

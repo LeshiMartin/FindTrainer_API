@@ -4,11 +4,13 @@ using FindTrainer.Domain.Entities.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace FindTrainer.Persistence
 {
@@ -22,6 +24,10 @@ namespace FindTrainer.Persistence
         public DbSet<Address> Addresses { get; set; }
         public DbSet<Certification> Certifications { get; set; }
         public DbSet<Focus> Focuses { get; set; }
+
+        public DbSet<NewSignup> NewSignups { get; set; }
+
+        public DbSet<UniqueSignin> UniqueSignins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -82,7 +88,7 @@ namespace FindTrainer.Persistence
             builder.Entity<Certification>().Property(x => x.Title).IsRequired();
             builder.Entity<Certification>().Property(x => x.Created).IsRequired();
 
-            builder.Entity<ApplicationUser>().HasMany(x => x.Certifications).WithOne().HasForeignKey(x => x.UserId);
+            builder.Entity<ApplicationUser>().HasMany(x => x.Certifications).WithOne().HasForeignKey(x => x.trainerId);
 
             builder.Entity<Review>().Property(x => x.Content).IsRequired();
             builder.Entity<Review>().Property(x => x.Stars).IsRequired();
@@ -94,7 +100,16 @@ namespace FindTrainer.Persistence
             builder.Entity<Photo>().Property(x => x.PublicId).IsRequired();
 
             builder.Entity<ApplicationUser>().HasOne(x => x.Photo).WithOne().HasForeignKey<ApplicationUser>(x => x.PhotoId);
+
+            builder.Entity<NewSignup>().Property(x => x.SignupDate).IsRequired();
+            builder.Entity<NewSignup>().Property(x => x.UserNumber).IsRequired();
+
+            builder.Entity<UniqueSignin>().Property(x => x.SigninDate).IsRequired();
+            builder.Entity<UniqueSignin>().Property(x => x.UserNumber).IsRequired();
         }
+
+
+
 
     }
 }

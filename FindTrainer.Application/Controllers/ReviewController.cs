@@ -8,6 +8,7 @@ using FindTrainer.Persistence.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FindTrainer.Application.Controllers
 {
@@ -28,18 +29,19 @@ namespace FindTrainer.Application.Controllers
         }
 
         [HttpPost("{recipientId}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> AddReview(ReviewForCreationDto reviewIntake)
         {
 
-            if(await UserAlreadyReviewed(reviewIntake.ToId))
+            if(await UserAlreadyReviewed(reviewIntake.RecieverId))
             {
                 return Unauthorized("You already gave a review to this person");
             }
 
             var newReview = new Review
             {
-                SenderId = UserId,
-                RecipientId = reviewIntake.ToId,
+                SenderId = CurrentUserId,
+                RecipientId = reviewIntake.RecieverId,
                 Stars = reviewIntake.Stars,
                 CreatedDate = DateTime.Now,
                 Content = reviewIntake.Content,
@@ -54,11 +56,12 @@ namespace FindTrainer.Application.Controllers
 
         private async Task<bool> UserAlreadyReviewed(int recipientId)
         {
-            return (await _reviewsQuery.Query.Where(x => x.SenderId == UserId && x.RecipientId == recipientId).CountAsync()) > 0;
+            return (await _reviewsQuery.Query.Where(x => x.SenderId == CurrentUserId && x.RecipientId == recipientId).CountAsync()) > 0;
         }
 
 
         [HttpDelete("{reviewId}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> DeleteReview(int reviewId)
         {
             bool success = await _reviewsRepo.Delete(reviewId);
@@ -71,10 +74,11 @@ namespace FindTrainer.Application.Controllers
             return Ok();
         }
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetReviewsForUser(int userid, int page, int pageSize = Constants.Paging.DefaultPageSize)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetReviewsForTrainer(int trainerId, int page, int pageSize = Constants.Paging.DefaultPageSize)
         {
 
-            var reviews = await _reviewsQuery.Get(rev => rev.RecipientId == userid, null, o => o.CreatedDate, true, (page - 1) * pageSize, pageSize);
+            var reviews = await _reviewsQuery.Get(rev => rev.RecipientId == trainerId, null, o => o.CreatedDate, true, (page - 1) * pageSize, pageSize);
 
             var reviewToReturn = _mapper.Map<IEnumerable<ReviewForListDto>>(reviews);
 
